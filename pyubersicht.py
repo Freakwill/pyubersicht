@@ -12,11 +12,13 @@ _Template = jinja2.Template('''
 command: "{{command}}"
 
 render: (output) -> """
-{{render}}
+<html>{{render}}</html>
 """
 
-update: (output, domEl) -> """
+update: (output, domEl) -> 
 {{update}}
+"""
+<html>{{#output}}</html>
 """
 
 style: """
@@ -53,7 +55,7 @@ _DefaultStyle = """
     font-style: normal
 """
 
-_DefaultParamters = {"command": "python3 widget_title/script.py", "render": "#{output}", "update":"#{output}", "refreshFrequency":"1000*3600", "style":_DefaultStyle}
+_DefaultParamters = {"command": "python3 widget_title/script.py", "render": "#{output}", "update":"output", "refreshFrequency":"1000*3600", "style":_DefaultStyle}
 
 class UbersichtBiulder(object):
     '''UbersichtBiulder has 1 (principal) proptery
@@ -85,8 +87,9 @@ class PyUbersichtBiulder(UbersichtBiulder):
         content = '''# -*- coding: utf-8 -*-
 
 """Python script for %s"""
-
-print('hello world')'''%widget.title
+# Business Logic
+if __name__ == '__main__':
+    print('hello world')'''%widget.title
         script.write_text(content)
 
 
@@ -117,8 +120,9 @@ class PyUbersichtWidget(UbersichtWidget):
     
     def __init__(self, title='', description='', parameter={}):
         updatestr = """
-newout = 'Default Output'
-exec "python3 %s -o output -d domEl", (err, stdout, stderr) -> newout=stdout
+output = 'Default Output'
+exec = require('child_process').exec
+exec "python3 %s -o output -d domEl", (err, stdout, stderr) -> output=stdout
 """ % (_DefaultDir / title / "update.py")
         parameter.update({'update': updatestr})
         super(PyUbersichtWidget, self).__init__(title, description, parameter)
