@@ -28,6 +28,15 @@ style: """
 refreshFrequency: {{refreshFrequency}}
 ''')
 
+_JSONTemplate = jinja2.Template('''
+{
+  "name": "{{title}}",
+  "description": "{{description}}",
+  "author": "{{author}}",
+  "email": "{{email}}"
+}
+''')
+
 _DefaultStyle = """
   background: rgba(#fff, 0.5) url('übersicht-logo.png') no-repeat 50% 20px
   background-size: 176px 84px
@@ -57,6 +66,8 @@ _DefaultStyle = """
 
 _DefaultParamters = {"command": "python3 widget_title/script.py", "render": "#{output}", "update":"output", "refreshFrequency":"1000*3600", "style":_DefaultStyle}
 
+
+
 class UbersichtBiulder(object):
     '''UbersichtBiulder has 1 (principal) proptery
     strategy: strategy
@@ -71,6 +82,10 @@ class UbersichtBiulder(object):
         index = folder / 'index.coffee'
         index.touch()
         index.write_text(_Template.render(widget.parameter), encoding='utf-8')
+
+        json = cls.path / 'widget.json'
+        json.touch()
+        json.write_text(_JSONTemplate.render(widget.parameter))
 
 
 class PyUbersichtBiulder(UbersichtBiulder):
@@ -108,6 +123,8 @@ class UbersichtWidget(object):
         self.parameter.update(parameter)
         self.otherfiles = []
         self.folder = _DefaultDir / self.title
+        self.author = ''
+        self.email = '@'
 
     def make(self):
         UbersichtBiulder.build(self)
